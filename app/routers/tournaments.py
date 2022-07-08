@@ -31,14 +31,14 @@ fake_db  = [
 ]
 
 
-@router.get("/{tournament_id}")
+@router.get("/{tournament_id}", response_model = Tournament)
 def retrieve_tournament(tournament_id: int = Path(title="Id of the tournament we want to get", ge=0)):
     if len(fake_db) > tournament_id:
         return fake_db[tournament_id]
     else: 
         return Response(status_code=404)
 
-@router.get("/")
+@router.get("/", response_model = list[Tournament] )
 def retrieve_tournaments(
     name : str | None = None, 
     tempo: TournamentTempo | None = None,
@@ -53,7 +53,7 @@ def add_tournament(tournament : Tournament)->Tournament:
     fake_db.append(tournament.__dict__)
     return tournament
 
-@router.put(path="/{tournament_id}")
+@router.put(path="/{tournament_id}", response_model= Tournament)
 def update_tournament(tournament_id : int = Path(title="Id of the tournament we want to get", ge=0)):
   return {"message":"Nothing here yet"} 
 

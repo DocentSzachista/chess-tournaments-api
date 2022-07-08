@@ -16,3 +16,7 @@ class TournamentState(str, Enum):
     planned = "planned"
     ongoing = "ongoing"
     finished = "finished"
+
+class Gender(str, Enum):
+    man = "M"
+    woman = "W"
