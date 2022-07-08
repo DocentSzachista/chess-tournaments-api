@@ -1,3 +1,4 @@
+from doctest import Example
 from pydantic import BaseModel, Field
 from .enums import TournamentTempo, CountryState
 
@@ -21,7 +22,14 @@ class Tournament(BaseModel):
         max_length=255,
         example = "Krajowa 8"
     )
-    
+    roundsNumber : int = Field(
+        title="number of rounds in tournament",
+        example = 7
+    )
+    system: str = Field(
+        title="System in which people are divided into pairs",
+        example = "Swiss"        
+    )
     tempo: TournamentTempo = Field(
         default=None, 
         title="tournament tempo", 

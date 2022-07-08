@@ -1,6 +1,6 @@
 from tokenize import group
 from fastapi import APIRouter, Path, Response
-from ..models import UserDB
+from ..schemas import UserDB
 router = APIRouter(
     prefix = "/users",
     tags = ["users"]

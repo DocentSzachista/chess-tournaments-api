@@ -1,15 +1,30 @@
 
-from fastapi import APIRouter, Path, Response
-from ..models import TournamentState, CountryState, TournamentTempo, Tournament
-from ..db import database
+from fastapi import APIRouter, Depends, Path, Response
+from ..schemas import TournamentState, CountryState, TournamentTempo, Tournament
+# from ..db import database
+from sqlalchemy.orm import Session 
+from ..db.crud import tournament_utils, user
+from ..db.database import SessionLocal, engine, read_db
+from ..db import models
+
+
+models.Base.metadata.create_all(bind=engine)
+
 router = APIRouter(
     prefix="/tournaments",
     tags=["Tournaments"],
     responses={404: {"description": "Not found"}}
 )
 
-fake_db  = database.read_db("tournaments")
+fake_db  = read_db("tournaments")
 
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @router.get("/{tournament_id}")
 def retrieve_tournament(tournament_id: int = Path(title="Id of the tournament we want to get", ge=0)):
@@ -29,8 +44,9 @@ def retrieve_tournaments(
   return fake_db
 
 @router.post(path="/")
-def add_tournament(tournament : Tournament)->Tournament:
+def add_tournament(tournament : Tournament, db: Session = Depends(get_db))->Tournament:
     fake_db.append(tournament.__dict__)
+    new_tournament = tournament_utils.create_tournament(db, tournament)
     return tournament
 
 @router.put(path="/{tournament_id}")
