@@ -10,23 +10,24 @@ class User(Base):
     id = Column(Integer, primary_key = True, index = True)
     firstname = Column(String, nullable = False)
     lastname = Column(String, nullable = False)
-    email = Column(String, unique = True, index = True)
-    gender = Column(Enum, nullable = False, index = True)
-    birthYear = Column(String)
-    rankPZszach = Column(Integer)
-    # fideRankingId = Column(Integer, ForeignKey('ranking.id'))
+    email = Column(String, unique = True, index = True, nullable=False)
+    gender = Column(String, nullable = False, index = True)
+    birthYear = Column(String, nullable = False)
+    rankPZszach = Column(Integer, nullable = False)
     password = Column(String, nullable = False)
+    
+    ranking = relationship("FIDERanking", uselist=False, back_populates="user")
     # ranking = relationship("FIDERanking", back_populates="user", uselist=False)
 
 class FIDERanking(Base):
     __tablename__ = "FIDERanking"
     
     id = Column(Integer, primary_key = True, index = True)
-    blitz =  Column(Integer)
-    rapid =  Column(Integer)
-    standard =  Column(Integer)
-
-    # user = relationship("User", back_populates="ranking")
+    blitz =  Column(Integer, nullable=False)
+    rapid =  Column(Integer, nullable=False)
+    standard =  Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    user = relationship("User", back_populates="ranking")
 
 
 class Tournament(Base):
@@ -42,3 +43,5 @@ class Tournament(Base):
     system = Column(String)
     startDate = Column(String)
     endDate = Column(String)
+
+    ownerId = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
