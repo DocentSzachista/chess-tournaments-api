@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..db.crud import tournament_utils
 
 from ..dependencies import get_db
-
+from ..oauth2 import get_current_user
 
 router = APIRouter(
     prefix="/tournaments",
@@ -43,15 +43,19 @@ def retrieve_tournaments(
 #   return fake_db
 
 @router.post(path="/")
-def add_tournament(tournament : Tournament, db: Session = Depends(get_db))->Tournament:
+def add_tournament(tournament : Tournament, db: Session = Depends(get_db), user_id: int = Depends(get_current_user))->Tournament:
     # fake_db.append(tournament.__dict__)
     new_tournament = tournament_utils.create_tournament(db, tournament)
     return tournament
 
 @router.put(path="/{tournament_id}")
-def update_tournament(tournament_id : int = Path(title="Id of the tournament we want to get", ge=0)):
+def update_tournament(
+  tournament_id : int = Path(title="Id of the tournament we want to get", ge=0), 
+  user_id: int = Depends(get_current_user) ):
   return {"message":"Nothing here yet"} 
 
 @router.delete(path="/{tournament_id}")
-def delete_tournament(tournament_id : int = Path(title="Id of the tournament we want to get", ge=0)):
+def delete_tournament(
+  tournament_id : int = Path(title="Id of the tournament we want to get", ge=0),
+  user_id: int = Depends(get_current_user) ):
   return {"message":"Nothing here yet"}

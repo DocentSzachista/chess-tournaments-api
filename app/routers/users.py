@@ -1,31 +1,33 @@
 from fastapi import APIRouter, HTTPException, Path, Response, Depends
 from sqlalchemy.orm import Session
 
-from ..schemas import UserDB
+from ..schemas.user import UserBase, UserCreate, UserOut
 from ..dependencies import get_db
 from ..db.crud import user
- 
+from ..utils import hash_pwd
 
 router = APIRouter(
     prefix = "/users",
     tags = ["users"]
 )
 
-@router.get("/")
-def get_user(db: Session = Depends(get_db)):
-    return user.read_users(db)
 
-@router.post("/")
-def register_user(new_user :UserDB, db: Session = Depends(get_db)):
+@router.get("/{id}", response_model=UserOut)
+def get_user(id: int, db: Session = Depends(get_db)):
+    return user.get_user(db, id)
+
+@router.post("/", response_model=UserOut)
+def register_user(new_user: UserCreate, db: Session = Depends(get_db)):
+    print()
+    new_user.password = hash_pwd(new_user.password)
     created_user = user.create_user(db , new_user)
-    # fake_db.append(new_user.__dict__)
     return created_user
 
 @router.put("/")
-def update_user_data(updated_user: UserDB):
+def update_user_data(updated_user: UserBase):
     return {"message": "Update user"}
 
 @router.delete("/", status_code=204)
 def delete_user(id: int, db: Session = Depends(get_db)):
     return user.remove_user(db, id)
-    
+

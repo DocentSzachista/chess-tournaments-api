@@ -1,9 +1,9 @@
 from fastapi import HTTPException, Response
 from sqlalchemy.orm import Session 
 from .. import models
-from ... import schemas
+from ...schemas import user
 
-def create_user(db: Session, user: schemas.UserDB):
+def create_user(db: Session, user: user.UserCreate):
     
 
     db_user = models.User(
@@ -37,6 +37,12 @@ def remove_user(db: Session, id: int):
     user.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=204)
+
+def get_user(db: Session, id: int):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if user == None:
+        raise HTTPException(status_code=404, detail=f"User with given id={id} not found")
+    return user
 
 # TODO: delete   
 def read_users(db: Session, skip: int = 0 , limit: int = 100):

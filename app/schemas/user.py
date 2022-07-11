@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, EmailStr
 from .enums import Gender
 from datetime import date
 
-class UserDB(BaseModel):
+class UserBase(BaseModel):
      firstname:  str = Field( 
           title = "Person's first name", 
           max_length = 50,
@@ -28,15 +28,16 @@ class UserDB(BaseModel):
           description = "Its value doesn't fall, it can only rise, but it's not our concern here tbh.",
           ge = 1000
           )
+  
+
+class UserCreate(UserBase):
      password : str = Field(title = "Haslo a co")
      blitz : int = Field(title = "Blitz ranking", default= 1000, ge = 0)
      rapid : int = Field(title = "Rapid ranking", default= 1000, ge = 0)
-     standard : int = Field(title = "Classic ranking", default= 1000, ge = 0)
-     
-# TODO: implement 
-class UserDisplay(BaseModel):
-     pass 
-class UserInput(BaseModel): 
-     pass
+     standard : int = Field(title = "Classic ranking", default= 1000, ge = 0)      
 
+class UserOut(UserBase):
+     id: int 
+     class Config:
+          orm_mode = True
 
