@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, Path, Response
 from ..schemas import TournamentState, CountryState, TournamentTempo, Tournament
 # from ..db import database
@@ -14,22 +13,12 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-# fake_db  = read_db("tournaments")
-
-# # Dependency
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
 
 @router.get("/{tournament_id}")
-def retrieve_tournament(tournament_id: int = Path(title="Id of the tournament we want to get", ge=0)):
-    # if len(fake_db) > tournament_id:
-    #     return fake_db[tournament_id]
-    # else: 
-    return Response(status_code=404)
+def retrieve_tournament(tournament_id: int = Path(title="Id of the tournament we want to get", ge=0),
+db: Session = Depends(get_db) ):
+
+    return tournament_utils.get_tournament(db, tournament_id)
 
 @router.get("/")
 def retrieve_tournaments(
@@ -37,25 +26,33 @@ def retrieve_tournaments(
     tempo: TournamentTempo | None = None,
     city : str | None = None,
     countryState: CountryState | None = None,
-    tournamentState : TournamentState | None = None 
+    tournamentState : TournamentState | None = None,
+    db: Session = Depends(get_db) 
   ):
-  pass
+  return tournament_utils.get_tournaments(db)
 #   return fake_db
 
 @router.post(path="/")
 def add_tournament(tournament : Tournament, db: Session = Depends(get_db), user_id: int = Depends(get_current_user))->Tournament:
-    # fake_db.append(tournament.__dict__)
-    new_tournament = tournament_utils.create_tournament(db, tournament)
-    return tournament
+    
+    new_tournament = tournament_utils.create_tournament(db, tournament, user_id )
+
+    return new_tournament
 
 @router.put(path="/{tournament_id}")
 def update_tournament(
-  tournament_id : int = Path(title="Id of the tournament we want to get", ge=0), 
-  user_id: int = Depends(get_current_user) ):
-  return {"message":"Nothing here yet"} 
+  tournament : Tournament,
+  tournament_id : int = Path(title="Id of the tournament we want to get", ge=0),
+  user_id: int = Depends(get_current_user),
+  db: Session = Depends(get_db) 
+   ):
+  
+  return tournament_utils.update_tournament(db, tournament_id, user_id, tournament ) 
 
 @router.delete(path="/{tournament_id}")
 def delete_tournament(
   tournament_id : int = Path(title="Id of the tournament we want to get", ge=0),
-  user_id: int = Depends(get_current_user) ):
-  return {"message":"Nothing here yet"}
+  user_id: int = Depends(get_current_user) ,
+  db: Session=Depends(get_db)):
+
+  return tournament_utils.delete_tournament(db, tournament_id)
