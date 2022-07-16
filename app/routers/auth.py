@@ -1,4 +1,3 @@
-import imp
 from pyexpat import version_info
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session

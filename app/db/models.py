@@ -3,6 +3,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Enum, colum
 from sqlalchemy.orm import relationship
 
 from .database import Base
+from ..schemas import enums
 
 class User(Base):
     __tablename__ = "users"
@@ -37,14 +38,14 @@ class Tournament(Base):
     __tablename__ = "tournaments"
 
     id = Column(Integer, primary_key = True, index = True)
-    name = Column(String)
-    city = Column(String)
-    address = Column(String)
-    tempo = Column(String)
-    countryState = Column(String)
-    roundsNumber = Column(Integer)
-    system = Column(String)
-    startDate = Column(String)
+    name = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+    tempo = Column(String, nullable=False)
+    countryState = Column(String, nullable=False)
+    roundsNumber = Column(Integer, nullable=False)
+    system = Column(String, nullable=False)
+    startDate = Column(String, nullable=False)
     endDate = Column(String)
 
     ownerId = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)

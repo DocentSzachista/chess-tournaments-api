@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Path, Response
-from ..schemas import TournamentState, CountryState, TournamentTempo, Tournament
-# from ..db import database
+from ..schemas import TournamentState, CountryState, TournamentTempo, TournamentBase, TournamentDB, TournamentOut
 from sqlalchemy.orm import Session 
 from ..db.crud import tournament_utils
 
@@ -14,13 +13,13 @@ router = APIRouter(
 )
 
 
-@router.get("/{tournament_id}")
+@router.get("/{tournament_id}", response_model=TournamentOut)
 def retrieve_tournament(tournament_id: int = Path(title="Id of the tournament we want to get", ge=0),
 db: Session = Depends(get_db) ):
 
     return tournament_utils.get_tournament(db, tournament_id)
 
-@router.get("/")
+@router.get("/", response_model=list[TournamentOut])
 def retrieve_tournaments(
     name : str | None = None, 
     tempo: TournamentTempo | None = None,
@@ -30,18 +29,20 @@ def retrieve_tournaments(
     db: Session = Depends(get_db) 
   ):
   return tournament_utils.get_tournaments(db)
-#   return fake_db
+
 
 @router.post(path="/")
-def add_tournament(tournament : Tournament, db: Session = Depends(get_db), user_id: int = Depends(get_current_user))->Tournament:
+def add_tournament(
+  tournament : TournamentDB, 
+  db: Session = Depends(get_db), 
+  user_id: int = Depends(get_current_user))->TournamentDB:
     
     new_tournament = tournament_utils.create_tournament(db, tournament, user_id )
-
     return new_tournament
 
 @router.put(path="/{tournament_id}")
 def update_tournament(
-  tournament : Tournament,
+  tournament : TournamentDB,
   tournament_id : int = Path(title="Id of the tournament we want to get", ge=0),
   user_id: int = Depends(get_current_user),
   db: Session = Depends(get_db) 

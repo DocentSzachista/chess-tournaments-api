@@ -18,7 +18,6 @@ def get_user(id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=UserOut)
 def register_user(new_user: UserCreate, db: Session = Depends(get_db)):
-    print()
     new_user.password = hash_pwd(new_user.password)
     created_user = user.create_user(db , new_user)
     return created_user

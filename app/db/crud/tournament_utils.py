@@ -1,4 +1,3 @@
-from tkinter.messagebox import NO
 from fastapi import HTTPException, Response
 from sqlalchemy.orm import Session 
 from .. import models
@@ -13,7 +12,7 @@ def get_tournament(db: Session, id : int):
         raise HTTPException(status_code = 404, detail="Not found")
     return tournament
 
-def update_tournament(db: Session, id: int,  user_id : int, tournament_updated: schemas.Tournament):
+def update_tournament(db: Session, id: int,  user_id : int, tournament_updated: schemas.TournamentDB):
     
     query = db.query(models.Tournament).filter(models.Tournament.id == id)
 
@@ -39,16 +38,17 @@ def delete_tournament(db: Session, id: int):
     db.commit()
     return Response(status_code = 204 )
 
-def create_tournament(db: Session, user: schemas.Tournament, current_user: int):
-    db_tournament = models.Tournament(
-        address = user.address,
-        city = user.city,
-        name = user.name,
-        countryState = user.countryState,
-        roundsNumber =  user.roundsNumber,
-        system =  user.system,
-        startDate = user.startDate ,
-        endDate = user.endDate,
+def create_tournament(db: Session, new_tournament: schemas.TournamentDB, current_user: int):
+    db_tournament = models.Tournament( 
+        address = new_tournament.address,
+        city = new_tournament.city,
+        name = new_tournament.name,
+        countryState = new_tournament.countryState,
+        roundsNumber =  new_tournament.roundsNumber,
+        system =  new_tournament.system,
+        tempo = new_tournament.tempo,
+        startDate = new_tournament.startDate ,
+        endDate = new_tournament.endDate,
         ownerId = current_user )
     db.add(db_tournament)
     db.commit()

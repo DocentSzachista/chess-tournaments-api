@@ -2,8 +2,7 @@ from doctest import Example
 from pydantic import BaseModel, Field
 from .enums import TournamentTempo, CountryState
 
-class Tournament(BaseModel): 
-    
+class TournamentBase(BaseModel): 
     name: str = Field(
         title = "The title of tournament", 
         description = "Remember to not exceed its max lenght", 
@@ -17,6 +16,31 @@ class Tournament(BaseModel):
         example = "Wrocław" 
         )
     
+    startDate: str = Field(
+        title = "Start date of the tournament", 
+        description="for the project needs only allowed date format will be  'dd.mm.yyyy'",
+        max_length=10,
+        min_length=10,
+        example = "10.08.2022"
+        )
+    
+    tempo: TournamentTempo = Field(
+        default=None, 
+        title="tournament tempo", 
+        description="You must provide one of given types",
+        example = TournamentTempo.classic
+        )
+
+    endDate: str = Field(
+        default=None,
+        title = "End date of the tournament", 
+        description="for the project needs only allowed date format will be  'dd.mm.yyyy'",
+        max_length=10,
+        min_length=10,
+        example = "10.08.2022"
+        )
+
+class TournamentDB(TournamentBase): 
     address: str = Field(
         title = "Address of a building where tournament takes place",
         max_length=255,
@@ -30,32 +54,12 @@ class Tournament(BaseModel):
         title="System in which people are divided into pairs",
         example = "Swiss"        
     )
-    tempo: TournamentTempo = Field(
-        default=None, 
-        title="tournament tempo", 
-        description="You must provide one of given types",
-        example = TournamentTempo.classic
-        )
-
     countryState: CountryState = Field( 
         default = None, 
         title = "contains info about in which country state tournament takes part",
         example = CountryState.DS 
         )
-    
-    startDate: str = Field(
-        title = "Start date of the tournament", 
-        description="for the project needs only allowed date format will be  'dd.mm.yyyy'",
-        max_length=10,
-        min_length=10,
-        example = "10.08.2022"
-        )
-    
-    endDate: str = Field(
-        default=None,
-        title = "End date of the tournament", 
-        description="for the project needs only allowed date format will be  'dd.mm.yyyy'",
-        max_length=10,
-        min_length=10,
-        example = "10.08.2022"
-        )
+class TournamentOut(TournamentBase): 
+    id: int 
+    class Config: 
+        orm_mode = True
