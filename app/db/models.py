@@ -65,4 +65,4 @@ class Participant(Base):
     id = Column(Integer, primary_key = True, index = True)
     participantId = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     tournamentID  = Column(Integer, ForeignKey('tournaments.id', ondelete="CASCADE"), nullable=False)
-    points = Column(Integer)
+    points = Column(Integer, default = 0)

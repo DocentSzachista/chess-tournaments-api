@@ -14,6 +14,11 @@ class UserBase(BaseModel):
           max_length = 50,
           example = "Doe"
           )
+     class Config: 
+          orm_mode = True
+
+
+class UserDetails(UserBase):
      email: EmailStr
      gender : Gender = Field(
           title = "Person's gender. there is no place for Apache's, etc. You must provide biological gender"
@@ -28,9 +33,8 @@ class UserBase(BaseModel):
           description = "Its value doesn't fall, it can only rise, but it's not our concern here tbh.",
           ge = 1000
           )
-  
 
-class UserCreate(UserBase):
+class UserCreate(UserDetails):
      password : str = Field(title = "Haslo a co")
      blitz : int = Field(title = "Blitz ranking", default= 1000, ge = 0)
      rapid : int = Field(title = "Rapid ranking", default= 1000, ge = 0)
@@ -40,4 +44,5 @@ class UserOut(UserBase):
      id: int 
      class Config:
           orm_mode = True
+
 

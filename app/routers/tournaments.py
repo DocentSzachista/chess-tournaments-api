@@ -1,5 +1,8 @@
+from xmlrpc.client import Boolean
 from fastapi import APIRouter, Depends, Path, Response
+from requests import delete
 from ..schemas import TournamentState, CountryState, TournamentTempo, TournamentBase, TournamentDB, TournamentOut
+from ..schemas import user
 from sqlalchemy.orm import Session 
 from ..db.crud import tournament_utils
 
@@ -11,7 +14,6 @@ router = APIRouter(
     tags=["Tournaments"],
     responses={404: {"description": "Not found"}}
 )
-
 
 @router.get("/{tournament_id}", response_model=TournamentOut)
 def retrieve_tournament(tournament_id: int = Path(title="Id of the tournament we want to get", ge=0),
@@ -28,7 +30,9 @@ def retrieve_tournaments(
     tournamentState : TournamentState | None = None,
     db: Session = Depends(get_db) 
   ):
-  return tournament_utils.get_tournaments(db)
+  params = locals().copy()
+  params.pop("db") 
+  return tournament_utils.get_tournaments(db, params)
 
 
 @router.post(path="/")
@@ -36,7 +40,7 @@ def add_tournament(
   tournament : TournamentDB, 
   db: Session = Depends(get_db), 
   user_id: int = Depends(get_current_user))->TournamentDB:
-    
+ 
     new_tournament = tournament_utils.create_tournament(db, tournament, user_id )
     return new_tournament
 
@@ -57,3 +61,28 @@ def delete_tournament(
   db: Session=Depends(get_db)):
 
   return tournament_utils.delete_tournament(db, tournament_id)
+
+@router.get(path="/{tournament_id}/participants")
+def retrieve_participants(
+  tournament_id : int = Path(title="Id of the tournament we want to get", ge=0), 
+  sort_by_score : Boolean = False,
+  db: Session = Depends(get_db),
+  ):
+  return tournament_utils.retrieve_participants(db, tournament_id)
+
+@router.post(path="/{tournament_id}/signUp", #response_model=user.ParticipantOut
+ )
+def signup_for_tournament(
+  tournament_id:  int = Path(title="Id of the tournament we want to get", ge=0),
+  user_id: Session = Depends(get_current_user),
+  db: Session = Depends(get_db)
+  ):
+  return tournament_utils.add_user_to_tournament(db, tournament_id, user_id)
+
+@router.delete(path="/{tournament_id}/signOut")
+def sign_out_from_tournament(
+  tournament_id:  int = Path(title="Id of the tournament we want to get", ge=0), 
+  user_id: Session = Depends(get_current_user),
+  db: Session = Depends(get_db)
+  ):
+  return tournament_utils.sign_out_participant(db, tournament_id, user_id)

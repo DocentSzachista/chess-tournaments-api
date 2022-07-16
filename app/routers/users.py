@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Path, Response, Depends
 from sqlalchemy.orm import Session
 
-from ..schemas.user import UserBase, UserCreate, UserOut
+from ..schemas.user import UserBase, UserCreate, UserDetails, UserOut
 from ..dependencies import get_db
 from ..db.crud import user
 from ..utils import hash_pwd
@@ -23,7 +23,7 @@ def register_user(new_user: UserCreate, db: Session = Depends(get_db)):
     return created_user
 
 @router.put("/")
-def update_user_data(updated_user: UserBase):
+def update_user_data(updated_user: UserDetails):
     return {"message": "Update user"}
 
 @router.delete("/", status_code=204)
