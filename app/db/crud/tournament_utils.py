@@ -31,7 +31,7 @@ def update_tournament(db: Session, id: int,  user_id : int, tournament_updated: 
         raise HTTPException(status_code=403,
                             detail=f"Not authorized to perform that request")
     query.update(tournament_updated.dict(), synchronize_session=False)
-    
+    #
     db.commit()
     
     return query.first()    
