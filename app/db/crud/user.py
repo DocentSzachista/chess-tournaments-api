@@ -44,6 +44,20 @@ def get_user(db: Session, id: int):
         raise HTTPException(status_code=404, detail=f"User with given id={id} not found")
     return user
 
+def update_user(db: Session, user_id: int,   user_updated:  user.UserDetails ):
+    
+    query = db.query( models.User ).filter(
+        models.User.id == user_id )
+    user = query.first()
+
+    if not user : 
+        raise HTTPException(status_code=404, detail=f"User with given id={id} not found")
+    
+    query.update(user_updated.dict(), synchronize_session=False)
+    db.commit()
+
+
+
 # TODO: delete   
 def read_users(db: Session, skip: int = 0 , limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()

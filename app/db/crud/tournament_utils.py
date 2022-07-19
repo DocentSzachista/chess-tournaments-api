@@ -11,6 +11,7 @@ def get_tournaments(db: Session, params: dict , skip: int = 0 , limit: int = 100
         query = query.filter(getattr(models.Tournament, attr).like(search) )
     return query.offset(skip).limit(limit).all()
 
+
 def get_tournament(db: Session, id : int):
     tournament  = db.query(models.Tournament).filter(models.Tournament.id == id).first()
     if tournament == None:
@@ -90,12 +91,17 @@ def add_user_to_tournament(db: Session, tournament_id: int, user_id: int):
 
 def retrieve_participants(db: Session, tournament_id: int):
     query = db.query(
+        models.Participant.id,
         models.Participant.points, 
         models.User.firstname,
-        models.User.lastname
+        models.User.lastname,
+        models.FIDERanking.standard 
     ).filter(
         models.User.id == models.Participant.participantId,
-        models.Participant.tournamentID == tournament_id    
+        models.Participant.tournamentID == tournament_id,
+        models.FIDERanking.user_id == models.Participant.participantId   
+    ).order_by(
+        models.FIDERanking.standard.desc()
     ).all()
     return query 
 
@@ -109,3 +115,39 @@ def sign_out_participant(db: Session, tournament_id: int, user_id: int):
     participant.delete(synchronize_session=False)
     db.commit()
     return Response(status_code = 204 )
+
+def generate_round(db: Session, tournament_id: int, user_id: int):
+    # check if given person has access rights to that tournament, 
+    # find if ammount of rounds wasn't exceeded 
+    # add new round and generate participants struggles 
+    # return list of struggles 
+
+    query = db.query(models.Tournament).filter(models.Tournament.id == tournament_id)
+
+    tournament = query.first()
+
+    if tournament.ownerId != user_id:
+        raise HTTPException(status_code=403,
+                            detail=f"Not authorized to perform that request")
+    
+    latest_round = db.query(models.Round).filter(
+            models.Round.tournamentId == tournament_id
+        ).order_by(
+            models.Round.roundNumber.desc()
+        ).first()
+    
+    if latest_round is None :
+        round_numb = 1 
+    else : 
+        round_numb = latest_round.roundNumber +1 
+    if tournament.roundsNumber < round_numb:
+        raise HTTPException(status_code=409, 
+        detail="Maximum ammount of rounds to generate reached")
+    db_new_round = models.Round(
+        tournamentId = tournament_id,
+        roundNumber = round_numb
+    )
+    print(db_new_round.__dict__)    
+    db.add(db_new_round)
+    db.commit()
+    return db_new_round
